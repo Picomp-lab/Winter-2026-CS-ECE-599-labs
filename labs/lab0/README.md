@@ -104,7 +104,7 @@ Run on the submit node:
 
 ```bash
 cd ~/hpc-share
-git clone https://github.com/<YOUR_GITHUB_USERNAME>/Winter-2026-CS-ECE-599-labs.git
+git clone https://github.com/Picomp-lab/Winter-2026-CS-ECE-599-labs.git
 cd Winter-2026-CS-ECE-599-labs
 ```
 
@@ -112,7 +112,7 @@ cd Winter-2026-CS-ECE-599-labs
 
 If your instructor provided a demo repo:
 ```bash
-git clone https://github.com/shwgao/CS-ECE-599-labs.git
+git clone https://github.com/Picomp-lab/Winter-2026-CS-ECE-599-labs.git
 ```
 
 ## 7) Request a GPU interactively (srun)
