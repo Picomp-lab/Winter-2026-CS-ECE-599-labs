@@ -83,15 +83,16 @@ In **VS Code**:
 1. Open **Command Palette** → `Remote-SSH: Connect to Host…`
 2. Enter:
 
-   ```bash
-   ssh <ONID>@submit.hpc.engr.oregonstate.edu
-    ```
+```bash
+ssh <ONID>@submit.hpc.engr.oregonstate.edu
+```
 
-### 4.2 Open your course folder (recommended)
+### 4.3 Open your course folder (recommended)
 Open:
-    ```bash
-   ~/hpc-share/Winter-2026-CS-ECE-599-labs
-    ```
+    
+```bash
+~/hpc-share/Winter-2026-CS-ECE-599-labs
+```
 
 ### 4.4 Open the integrated terminal in VS Code
 
@@ -101,38 +102,38 @@ Use:
 ## 5) Clone your course repo into scratch (recommended)
 Run on the submit node:
 
-    ```bash
+```bash
 cd ~/hpc-share
 git clone https://github.com/<YOUR_GITHUB_USERNAME>/Winter-2026-CS-ECE-599-labs.git
 cd Winter-2026-CS-ECE-599-labs
-    ```
+```
 
 ## 6) (Optional) Clone the demo/tutorial repo from class
 
 If your instructor provided a demo repo:
-    ```bash
+```bash
 git clone https://github.com/shwgao/CS-ECE-599-labs.git
-    ```
+```
 
 ## 7) Request a GPU interactively (srun)
 
 Request one GPU for 1 hour with 64 GB RAM:
-    ```bash
+```bash
 srun -A eecs --time=0-01:00:00 -p gpu,dgx2 --gres=gpu:1 --mem=64G --pty bash
-    ```
+```
 
 Once you’re on the allocated node, run:
-    ```bash
+```bash
 nvidia-smi
 hostname -f
-    ```
+```
 - `nvidia-smi` confirms the GPU is available.
 - `hostname -f` prints the compute node hostname you were assigned.
 
 ## 8) Connect VS Code directly to the GPU node (recommended)
 
 After you run hostname -f on the GPU node, copy the hostname and connect VS Code Remote-SSH to:
-    ```bash
-    ssh <ONID>@<HOSTNAME_FROM_hostname_-f>
-    ```
+```bash
+ssh <ONID>@<HOSTNAME_FROM_hostname_-f>
+```
 This attaches your editor + terminal directly to the GPU node you reserved.
