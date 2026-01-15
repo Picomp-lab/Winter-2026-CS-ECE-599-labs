@@ -108,14 +108,7 @@ git clone https://github.com/Picomp-lab/Winter-2026-CS-ECE-599-labs.git
 cd Winter-2026-CS-ECE-599-labs
 ```
 
-## 6) (Optional) Clone the demo/tutorial repo from class
-
-If your instructor provided a demo repo:
-```bash
-git clone https://github.com/Picomp-lab/Winter-2026-CS-ECE-599-labs.git
-```
-
-## 7) Request a GPU interactively (srun)
+## 6) Request a GPU interactively (srun)
 
 Request one GPU for 1 hour with 64 GB RAM:
 ```bash
@@ -130,7 +123,7 @@ hostname -f
 - `nvidia-smi` confirms the GPU is available.
 - `hostname -f` prints the compute node hostname you were assigned.
 
-## 8) Connect VS Code directly to the GPU node (recommended)
+## 7) Connect VS Code directly to the GPU node (recommended)
 
 After you run hostname -f on the GPU node, copy the hostname and connect VS Code Remote-SSH to:
 ```bash
