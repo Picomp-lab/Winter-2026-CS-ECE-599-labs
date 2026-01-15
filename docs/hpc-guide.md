@@ -9,10 +9,8 @@ This guide walks you through:
 ---
 
 ## 1) Request HPC access
-- Request COE HPC access from the COE IT page.
-- Enable your HPC account in TEACH.
-
-(Links provided in the course announcement / Lab 0 handout.)
+- Request COE HPC access from the COE IT page (https://it.engineering.oregonstate.edu/hpc).
+- Enable your HPC account in TEACH (https://teach.engr.oregonstate.edu/teach.php?type=want_auth).
 
 ---
 
