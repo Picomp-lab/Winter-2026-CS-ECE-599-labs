@@ -123,10 +123,9 @@ hostname -f
 - `nvidia-smi` confirms the GPU is available.
 - `hostname -f` prints the compute node hostname you were assigned.
 
-## 7) Connect VS Code directly to the GPU node (recommended)
-
-After you run hostname -f on the GPU node, copy the hostname and connect VS Code Remote-SSH to:
+> This `srun` step is your Slurm "hop" to a GPU node. When you finish, exit the
+shell to release the allocation:
 ```bash
-ssh <ONID>@<HOSTNAME_FROM_hostname_-f>
+exit
 ```
-This attaches your editor + terminal directly to the GPU node you reserved.
+
