@@ -6,12 +6,14 @@ training loop before moving on.
 
 ## Files
 - `src/train_mnist.py`: baseline MLP model with train/test routines.
+- `src/ddp.py`: DDP example (as-is from prior lab2).
+- `src/ddp_clean.py`: cleaned DDP example with a tidy CLI.
 
 ## Quick start
-From the repo root:
+From your github pull:
 
 ```bash
-cd labs/lab1
+cd ./Winter-2026-CS-ECE-599-labs/labs/lab1
 python -m src.train_mnist --epochs 1
 ```
 
@@ -35,13 +37,42 @@ When finished, exit the shell to release the allocation:
 exit
 ```
 
-## Activate the course conda environment
-From the repo root (students can create it themselves the first time):
+## DDP training (Pokemon dataset)
+This section adds a multi-GPU example using the
+`keremberke/pokemon-classification` dataset from Hugging Face.
+
+From your github pull:
 
 ```bash
-cd ~/hpc-share/Winter-2026-CS-ECE-599-labs
-conda env create -f labs/lab1/env/environment.yml
+cd ./Winter-2026-CS-ECE-599-labs/labs/lab1
+```
+
+Run the as-is version:
+
+```bash
+python -m src.ddp --total_epochs 2 --batch_size 64
+```
+
+Run the cleaned version:
+
+```bash
+python -m src.ddp_clean --total-epochs 2 --batch-size 64
+```
+
+Notes:
+- Requires multiple GPUs; `torch.cuda.device_count()` controls DDP world size.
+- The dataset will download on first run.
+
+
+
+## Activate the course conda environment
+From your scratch path (students can create it themselves the first time):
+
+```bash
+cd ./Winter-2026-CS-ECE-599-labs/labs/lab1
+conda env create -f env/environment.yml
 conda activate csece599
+pip install -r env/requirements.txt
 ```
 
 ## Useful options
