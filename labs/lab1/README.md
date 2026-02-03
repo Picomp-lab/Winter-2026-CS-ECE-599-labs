@@ -36,10 +36,11 @@ exit
 ```
 
 ## Activate the course conda environment
-From the repo root:
+From the repo root (students can create it themselves the first time):
 
 ```bash
 cd ~/hpc-share/Winter-2026-CS-ECE-599-labs
+conda env create -f labs/lab1/env/environment.yml
 conda activate csece599
 ```
 
