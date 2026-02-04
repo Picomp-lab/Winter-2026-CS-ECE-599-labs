@@ -5,14 +5,11 @@ Labs for **CS/ECE 599 (Winter 2026)** — Advanced Topics in Deep Learning & Hig
 ## Repo structure
 - `labs/lab0` … `labs/lab5`: lab instructions + handouts
 - `labs/lab1`: MNIST walkthrough (including step-by-step scripts) + DDP example
-- `docs/`: setup guides (local + OSU COE HPC)
-- `shared/`: shared utilities (env files, SLURM templates)
-- `scripts/`: helper scripts (setup, packaging, etc.)
 
 ## Getting started
-1. Start with **Lab 0**: `labs/lab0/README.md`
-2. Then try **Lab 1** (MNIST + DDP): `labs/lab1/README.md`
-3. HPC + VS Code setup guide: `docs/hpc-vscode.md`
+1. HPC + VS Code setup guide: `labs/lab0/doc`
+2. Start with **Lab 0**: `labs/lab0/README.md`
+3. Then try **Lab 1** (MNIST + DDP): `labs/lab1/README.md`
 
-## Staff / Solutions
-Solutions and hidden tests should live in a staff-only branch or a private staff repo.
+
+

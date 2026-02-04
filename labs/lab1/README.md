@@ -130,3 +130,5 @@ Tutorial link:
 https://docs.pytorch.org/tutorials/intermediate/ddp_tutorial.html
 ```
 ### 5 Post where are you at the end of the class
+
+https://github.com/Picomp-lab/Winter-2026-CS-ECE-599-labs/discussions 
