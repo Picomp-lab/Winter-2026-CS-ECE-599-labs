@@ -36,6 +36,12 @@ When finished, exit the shell to release the allocation:
 exit
 ```
 
+For DDP runs (multi-GPU), request multiple GPUs instead (example for 2 GPUs):
+
+```bash
+srun -A eecs --time=0-01:00:00 -p gpu,dgx2 --gres=gpu:2 --mem=64G --pty bash
+```
+
 ### 2.2 Create and activate the conda env
 From your github pull:
 
@@ -89,18 +95,17 @@ Notes:
 - You can pass `--device cpu` or `--device cuda` to steps 2–4 if needed.
 
 ## 4) DDP steps + tutorial
-### 4.1 Run DDP training (Pokemon dataset)
-This section adds a multi-GPU example using the
-`keremberke/pokemon-classification` dataset from Hugging Face.
-
+### 4.1 Run DDP training (MNIST MLP)
+This section mirrors the `step3_train.py` MNIST training loop, but uses
+Distributed Data Parallel (DDP) across multiple GPUs.
 
 ```bash
-python -m src.ddp --total_epochs 2 --batch_size 64
+python -m src.ddp --epochs 2 --batch-size 128
 ```
 
 Notes:
 - Requires multiple GPUs; `torch.cuda.device_count()` controls DDP world size.
-- The dataset will download on first run.
+- The dataset will download on first run (rank 0 only).
 - Use `--gpus N` to limit how many GPUs are used (`0` = all available).
 
 ### 4.2 DDP tutorial guidance (PyTorch)

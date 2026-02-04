@@ -1,112 +1,91 @@
 import argparse
 import os
-import time
 
 import torch
+import torch.distributed as dist
 import torch.multiprocessing as mp
-import torch.nn.functional as F
-import torchvision.models as models
-from datasets import load_dataset
+import torch.nn as nn
+import torch.optim as optim
+import torchvision
+import torchvision.transforms as transforms
 from torch.distributed import destroy_process_group, init_process_group
 from torch.nn.parallel import DistributedDataParallel as DDP
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
-from torchvision import transforms
 
 
-class PokemonDataset(Dataset):
-    def __init__(self, split="train", config="full"):
-        self.dataset = load_dataset(
-            "keremberke/pokemon-classification",
-            config,
-            trust_remote_code=True,
-        )[split]
-        self.num_classes = len(self.dataset.features["labels"].names)
-
-    def __len__(self):
-        return len(self.dataset)
-
-    def __getitem__(self, idx):
-        sample = self.dataset[idx]
-        image = sample["image"]
-        transform = transforms.Compose(
-            [
-                transforms.Resize((224, 224)),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406],
-                    std=[0.229, 0.224, 0.225],
-                ),
-            ]
+class MLP(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.flatten = nn.Flatten()
+        self.layers = nn.Sequential(
+            nn.Linear(28 * 28, 512),
+            nn.ReLU(),
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Linear(256, 10),
         )
-        image_tensor = transform(image)
-        label = torch.tensor(sample["labels"], dtype=torch.long)
-        return image_tensor, label
+
+    def forward(self, x):
+        x = self.flatten(x)
+        return self.layers(x)
 
 
-class Trainer:
-    def __init__(self, model, train_data, optimizer, gpu_id, save_every, test_every):
-        self.gpu_id = gpu_id
-        self.model = DDP(model.to(gpu_id), device_ids=[gpu_id])
-        self.train_data = train_data
-        self.optimizer = optimizer
-        self.save_every = save_every
-        self.test_every = test_every
-        self.step_every = 10
-        self.accuracy = 0.0
+def build_dataloader(data_dir, batch_size, rank, world_size):
+    transform = transforms.Compose(
+        [
+            transforms.ToTensor(),
+            transforms.Normalize((0.1307,), (0.3081,)),
+        ]
+    )
 
-    def _run_batch(self, source, targets):
-        self.optimizer.zero_grad()
-        output = self.model(source)
-        loss = F.cross_entropy(output, targets)
-        loss.backward()
-        self.optimizer.step()
-        return loss.item()
+    if rank == 0:
+        train_dataset = torchvision.datasets.MNIST(
+            root=data_dir, train=True, download=True, transform=transform
+        )
+        dist.barrier()
+    else:
+        dist.barrier()
+        train_dataset = torchvision.datasets.MNIST(
+            root=data_dir, train=True, download=False, transform=transform
+        )
 
-    def _run_epoch(self, epoch):
-        batch_size = len(next(iter(self.train_data))[0])
-        self.train_data.sampler.set_epoch(epoch)
-        for step, (source, targets) in enumerate(self.train_data, start=1):
-            source = source.to(self.gpu_id)
-            targets = targets.to(self.gpu_id)
-            loss = self._run_batch(source, targets)
-            if self.gpu_id == 0 and step % self.step_every == 0:
+    sampler = DistributedSampler(
+        train_dataset, num_replicas=world_size, rank=rank, shuffle=True
+    )
+    train_loader = DataLoader(
+        train_dataset, batch_size=batch_size, sampler=sampler, shuffle=False
+    )
+    return train_loader
+
+
+def train(model, train_loader, device, epochs, learning_rate, rank):
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+    model.train()
+    for epoch in range(epochs):
+        running_loss = 0.0
+        train_loader.sampler.set_epoch(epoch)
+        for step, (images, labels) in enumerate(train_loader, start=1):
+            images, labels = images.to(device), labels.to(device)
+
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            running_loss += loss.item()
+            if rank == 0 and step % 100 == 0:
+                avg_loss = running_loss / 100
                 print(
-                    f"[GPU{self.gpu_id}] Epoch {epoch} | "
-                    f"Batchsize: {batch_size} | "
-                    f"Steps:{step}/{len(self.train_data)} | "
-                    f"Loss: {loss:.4f} | Accuracy: {self.accuracy:.4f}"
+                    f"[GPU{rank}] Epoch [{epoch + 1}/{epochs}], "
+                    f"Step [{step}/{len(train_loader)}], "
+                    f"Loss: {avg_loss:.4f}"
                 )
-
-    def _save_checkpoint(self, epoch, path):
-        torch.save(self.model.module.state_dict(), path)
-        print(f"Epoch {epoch} | Training checkpoint saved at {path}")
-
-    def _measure_accuracy(self, eval_data):
-        self.model.eval()
-        correct = 0
-        total = 0
-        with torch.no_grad():
-            for images, labels in eval_data:
-                images = images.to(self.gpu_id)
-                labels = labels.to(self.gpu_id)
-                outputs = self.model(images)
-                _, predicted = torch.max(outputs.data, 1)
-                total += labels.size(0)
-                correct += (predicted == labels).sum().item()
-        return 100 * correct / total
-
-    def train(self, max_epochs, checkpoint_path):
-        for epoch in range(max_epochs):
-            start_time = time.time()
-            self._run_epoch(epoch)
-            end_time = time.time()
-            if self.gpu_id == 0:
-                print(f"Epoch {epoch} took {end_time - start_time:.2f} seconds")
-            if self.gpu_id == 0 and epoch % self.save_every == 0:
-                self._save_checkpoint(epoch, checkpoint_path)
-            if self.gpu_id == 0 and epoch % self.test_every == 0:
-                self.accuracy = self._measure_accuracy(self.train_data)
+                running_loss = 0.0
 
 
 def ddp_setup(rank, world_size, master_addr, master_port):
@@ -116,43 +95,61 @@ def ddp_setup(rank, world_size, master_addr, master_port):
     init_process_group(backend="nccl", rank=rank, world_size=world_size)
 
 
-def load_train_objs():
-    train_set = PokemonDataset("train", "full")
-    model = models.resnet50()
-    num_features = model.fc.in_features
-    model.fc = torch.nn.Linear(num_features, train_set.num_classes)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-    return train_set, model, optimizer
-
-
-def prepare_dataloader(dataset, batch_size):
-    return DataLoader(
-        dataset,
-        batch_size=batch_size,
-        pin_memory=True,
-        shuffle=False,
-        sampler=DistributedSampler(dataset),
-    )
-
-
 def main(rank, world_size, args):
     ddp_setup(rank, world_size, args.master_addr, args.master_port)
-    dataset, model, optimizer = load_train_objs()
-    train_data = prepare_dataloader(dataset, args.batch_size)
-    trainer = Trainer(model, train_data, optimizer, rank, args.save_every, args.test_every)
-    trainer.train(args.total_epochs, args.checkpoint_path)
+    torch.manual_seed(args.seed)
+
+    os.makedirs(args.data_dir, exist_ok=True)
+    device = torch.device(f"cuda:{rank}")
+
+    train_loader = build_dataloader(args.data_dir, args.batch_size, rank, world_size)
+    model = MLP().to(device)
+    ddp_model = DDP(model, device_ids=[rank])
+
+    train(ddp_model, train_loader, device, args.epochs, args.learning_rate, rank)
+
+    if rank == 0:
+        torch.save(ddp_model.module.state_dict(), args.model_path)
+        print(f"Saved model to {args.model_path}")
+
     destroy_process_group()
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="DDP training on Pokemon dataset")
-    parser.add_argument("--total-epochs", default=10, type=int)
-    parser.add_argument("--save-every", default=100, type=int)
-    parser.add_argument("--test-every", default=2, type=int)
-    parser.add_argument("--batch-size", default=64, type=int)
-    parser.add_argument("--checkpoint-path", default="checkpoint.pt", type=str)
+    parser = argparse.ArgumentParser(description="DDP training on MNIST (MLP)")
+    parser.add_argument(
+        "--epochs",
+        "--total-epochs",
+        "--total_epochs",
+        dest="epochs",
+        default=1,
+        type=int,
+    )
+    parser.add_argument(
+        "--batch-size",
+        "--batch_size",
+        dest="batch_size",
+        default=128,
+        type=int,
+    )
+    parser.add_argument(
+        "--learning-rate",
+        "--learning_rate",
+        dest="learning_rate",
+        default=1e-3,
+        type=float,
+    )
+    parser.add_argument("--data-dir", default="./data", type=str)
+    parser.add_argument(
+        "--model-path",
+        "--checkpoint-path",
+        dest="model_path",
+        default="mnist_ddp.pth",
+        type=str,
+    )
     parser.add_argument("--master-addr", default="localhost", type=str)
     parser.add_argument("--master-port", default=12355, type=int)
+    parser.add_argument("--seed", default=42, type=int)
     parser.add_argument(
         "--gpus",
         default=0,
@@ -164,11 +161,12 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
-    available_gpus = torch.cuda.device_count()
-    if available_gpus < 1:
+    if not torch.cuda.is_available():
         raise SystemExit(
             "No CUDA devices found. Request a GPU node or run a GPU-equipped machine."
         )
+
+    available_gpus = torch.cuda.device_count()
     if args.gpus < 0:
         raise SystemExit("--gpus must be >= 0.")
     if args.gpus == 0:
@@ -179,4 +177,5 @@ if __name__ == "__main__":
                 f"Requested {args.gpus} GPUs but only {available_gpus} are available."
             )
         world_size = args.gpus
+
     mp.spawn(main, args=(world_size, args), nprocs=world_size)
