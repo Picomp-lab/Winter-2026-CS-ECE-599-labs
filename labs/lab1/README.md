@@ -42,6 +42,10 @@ For DDP runs (multi-GPU), request multiple GPUs instead (example for 2 GPUs):
 srun -A eecs --time=0-01:00:00 -p gpu,dgx2 --gres=gpu:2 --mem=64G --pty bash
 ```
 
+Note on GPU node names: the COE HPC cluster lists DGX2 nodes as `dgx2-[1-5]`
+and DGX H100/H200 nodes as `dgxh-[1-4]`. Use the partition/constraint your
+instructor recommends for the specific GPU type.  citeturn0view0
+
 ### 2.2 Create and activate the conda env
 From your github pull:
 
@@ -107,6 +111,13 @@ Notes:
 - Requires multiple GPUs; `torch.cuda.device_count()` controls DDP world size.
 - The dataset will download on first run (rank 0 only).
 - Use `--gpus N` to limit how many GPUs are used (`0` = all available).
+
+DDP guidance (read this once before running):
+- DDP launches one process per GPU; each process has its own model replica.
+- `rank` is the process id, and `world_size` is the total number of processes.
+- `DistributedSampler` ensures each rank sees a unique shard of the dataset.
+- All ranks must execute the same code paths in the same order, or the job can hang.
+- If you see hangs, check `MASTER_ADDR`, `MASTER_PORT`, and that all ranks started.
 
 ### 4.2 DDP tutorial guidance (PyTorch)
 Recommended reading and key points to keep in mind:

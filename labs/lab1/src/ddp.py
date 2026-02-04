@@ -39,6 +39,7 @@ def build_dataloader(data_dir, batch_size, rank, world_size):
         ]
     )
 
+    # Only rank 0 downloads data; others wait so we avoid race conditions.
     if rank == 0:
         train_dataset = torchvision.datasets.MNIST(
             root=data_dir, train=True, download=True, transform=transform
@@ -50,6 +51,7 @@ def build_dataloader(data_dir, batch_size, rank, world_size):
             root=data_dir, train=True, download=False, transform=transform
         )
 
+    # DistributedSampler shards the dataset so each rank sees unique samples.
     sampler = DistributedSampler(
         train_dataset, num_replicas=world_size, rank=rank, shuffle=True
     )
@@ -66,6 +68,7 @@ def train(model, train_loader, device, epochs, learning_rate, rank):
     model.train()
     for epoch in range(epochs):
         running_loss = 0.0
+        # Ensure each epoch reshuffles shards consistently across ranks.
         train_loader.sampler.set_epoch(epoch)
         for step, (images, labels) in enumerate(train_loader, start=1):
             images, labels = images.to(device), labels.to(device)
@@ -92,6 +95,7 @@ def ddp_setup(rank, world_size, master_addr, master_port):
     os.environ["MASTER_ADDR"] = master_addr
     os.environ["MASTER_PORT"] = str(master_port)
     torch.cuda.set_device(rank)
+    # NCCL is the recommended backend for multi-GPU on a single node.
     init_process_group(backend="nccl", rank=rank, world_size=world_size)
 
 
@@ -104,6 +108,7 @@ def main(rank, world_size, args):
 
     train_loader = build_dataloader(args.data_dir, args.batch_size, rank, world_size)
     model = MLP().to(device)
+    # One process per GPU; DDP handles gradient synchronization.
     ddp_model = DDP(model, device_ids=[rank])
 
     train(ddp_model, train_loader, device, args.epochs, args.learning_rate, rank)
