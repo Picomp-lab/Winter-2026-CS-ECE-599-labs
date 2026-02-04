@@ -98,12 +98,6 @@ This section adds a multi-GPU example using the
 python -m src.ddp --total_epochs 2 --batch_size 64
 ```
 
-Run the cleaned version:
-
-```bash
-python -m src.ddp --total-epochs 2 --batch-size 64
-```
-
 Notes:
 - Requires multiple GPUs; `torch.cuda.device_count()` controls DDP world size.
 - The dataset will download on first run.
