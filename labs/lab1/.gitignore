@@ -1,0 +1,5 @@
+# Local datasets and model artifacts
+data/
+src/data/
+*.pth
+checkpoint*.pt
