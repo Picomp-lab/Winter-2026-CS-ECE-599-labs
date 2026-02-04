@@ -15,7 +15,7 @@ Files you will use:
 - `env/environment.yml`: conda env definition.
 - `env/requirements.txt`: pip packages installed into the env.
 
-## 2) GPU reserve (recap) and conda env setup
+## 2) GPU reserve (recap), conda env setup and vs code debugging
 ### 2.1 Reserve a GPU node (srun)
 On the submit node, request an interactive GPU allocation:
 
@@ -50,16 +50,16 @@ What the env files do:
 - `env/environment.yml` defines the base conda env (Python version + pip).
 - `env/requirements.txt` lists pip packages (e.g., `torch`, `torchvision`, `datasets`).
 
+### 2.3 VS Code debugging tutorial
+
+https://code.visualstudio.com/docs/debugtest/debugging#_data-inspection
+
 ## 3) MNIST steps + tutorial
 ### 3.1 Run MNIST training
 From your github pull:
 
 ```bash
-cd ./Winter-2026-CS-ECE-599-labs/labs/lab1
-export OPENBLAS_NUM_THREADS=1
-export OMP_NUM_THREADS=1
-export MKL_NUM_THREADS=1
-python -m src.train_mnist --epochs 1
+python -m src.train_mnist --epochs 100
 ```
 
 Useful options:
@@ -71,20 +71,28 @@ Useful options:
 
 Expected output:
 You should see loss every ~100 steps and a final test accuracy printout. Accuracy
-will vary but should be well above random guessing after 1 epoch.
+will vary but should be well above random guessing after 10 epoch.
+
+### 3.2 Step-by-step MNIST walkthrough (optional) - if you are new to pytorch
+These scripts split `train_mnist.py` into small, instructional steps. Run them
+in order:
+
+```bash
+python -m src.step1_data
+python -m src.step2_model
+python -m src.step3_train --epochs 10 --model-path mnist_model.pth
+python -m src.step4_eval --model-path mnist_model.pth
+```
+
+Notes:
+- `step3_train` saves the model weights; `step4_eval` loads and evaluates them.
+- You can pass `--device cpu` or `--device cuda` to steps 2–4 if needed.
 
 ## 4) DDP steps + tutorial
 ### 4.1 Run DDP training (Pokemon dataset)
 This section adds a multi-GPU example using the
 `keremberke/pokemon-classification` dataset from Hugging Face.
 
-From your github pull:
-
-```bash
-cd ./Winter-2026-CS-ECE-599-labs/labs/lab1
-```
-
-Run the as-is version:
 
 ```bash
 python -m src.ddp --total_epochs 2 --batch_size 64
