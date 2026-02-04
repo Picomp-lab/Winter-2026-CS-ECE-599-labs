@@ -19,16 +19,20 @@ hostname -f
 ```
 
 ## 2) Tensor Parallel — Native API
-This example uses PyTorch’s tensor-parallel API to shard the MLP layers.
+This example builds on the Lab 1 MNIST training loop, but shards the MLP layers
+with PyTorch’s tensor-parallel API.
 
 ```bash
 torchrun --standalone --nproc_per_node 2 -m src.tensor_parallel_native \
-  --batch-size 64 --input-dim 1024 --hidden-dim 2048 --num-classes 10 --steps 5
+  --epochs 1 --batch-size 128 --learning-rate 1e-3 --data-dir ./data
 ```
 
 Notes:
 - `--nproc_per_node` should match the number of GPUs you allocated.
 - Requires a PyTorch build that includes `torch.distributed.tensor.parallel`.
+ - World size must divide the hidden size used in the model (512).
+ - Use `torchrun` (not plain `python`) so each GPU gets its own process and
+   `RANK/LOCAL_RANK/WORLD_SIZE` are set automatically.
 
 ## 3) Tensor Parallel — Manual Sharding (Educational)
 This version shows the mechanics explicitly: column-parallel first layer and
