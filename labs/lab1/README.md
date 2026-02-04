@@ -11,7 +11,7 @@ This lab verifies your PyTorch setup and introduces both single-GPU training
 Files you will use:
 - `src/train_mnist.py`: baseline MNIST MLP training and evaluation.
 - `src/ddp.py`: DDP example (as-is from prior lab2).
-- `src/ddp_clean.py`: cleaned DDP example with a tidy CLI.
+- `src/ddp.py`: cleaned DDP example with a tidy CLI.
 - `env/environment.yml`: conda env definition.
 - `env/requirements.txt`: pip packages installed into the env.
 
@@ -101,7 +101,7 @@ python -m src.ddp --total_epochs 2 --batch_size 64
 Run the cleaned version:
 
 ```bash
-python -m src.ddp_clean --total-epochs 2 --batch-size 64
+python -m src.ddp --total-epochs 2 --batch-size 64
 ```
 
 Notes:
