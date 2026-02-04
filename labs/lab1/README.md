@@ -101,6 +101,7 @@ python -m src.ddp --total_epochs 2 --batch_size 64
 Notes:
 - Requires multiple GPUs; `torch.cuda.device_count()` controls DDP world size.
 - The dataset will download on first run.
+- Use `--gpus N` to limit how many GPUs are used (`0` = all available).
 
 ### 4.2 DDP tutorial guidance (PyTorch)
 Recommended reading and key points to keep in mind:
