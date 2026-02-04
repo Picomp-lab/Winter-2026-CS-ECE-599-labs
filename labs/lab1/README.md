@@ -9,11 +9,10 @@ This lab verifies your PyTorch setup and introduces both single-GPU training
 - Run a DDP training example on the Pokemon dataset.
 
 Files you will use:
-- `src/train_mnist.py`: baseline MNIST MLP training and evaluation.
-- `src/ddp.py`: DDP example (as-is from prior lab2).
-- `src/ddp.py`: cleaned DDP example with a tidy CLI.
 - `env/environment.yml`: conda env definition.
 - `env/requirements.txt`: pip packages installed into the env.
+- `src/train_mnist.py`: baseline MNIST MLP training and evaluation.
+- `src/ddp.py`: DDP example.
 
 ## 2) GPU reserve (recap), conda env setup and vs code debugging
 ### 2.1 Reserve a GPU node (srun)
@@ -30,12 +29,6 @@ nvidia-smi
 hostname -f
 ```
 
-When finished, exit the shell to release the allocation:
-
-```bash
-exit
-```
-
 For DDP runs (multi-GPU), request multiple GPUs instead (example for 2 GPUs):
 
 ```bash
@@ -44,7 +37,13 @@ srun -A eecs --time=0-01:00:00 -p gpu,dgx2 --gres=gpu:2 --mem=64G --pty bash
 
 Note on GPU node names: the COE HPC cluster lists DGX2 nodes as `dgx2-[1-5]`
 and DGX H100/H200 nodes as `dgxh-[1-4]`. Use the partition/constraint your
-instructor recommends for the specific GPU type.  citeturn0view0
+instructor recommends for the specific GPU type. Check:  https://it.engineering.oregonstate.edu/hpc/about-cluster
+
+When finished (the whole lab), exit the shell to release the allocation:
+
+```bash
+exit
+```
 
 ### 2.2 Create and activate the conda env
 From your github pull:
@@ -130,3 +129,4 @@ Tutorial link:
 ```text
 https://docs.pytorch.org/tutorials/intermediate/ddp_tutorial.html
 ```
+### 5 Post where are you at the end of the class
