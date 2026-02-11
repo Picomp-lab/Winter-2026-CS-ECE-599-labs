@@ -21,7 +21,14 @@ def parse_args():
         type=str,
         default="Explain tensor parallelism in 5 bullet points.",
     )
+    parser.add_argument(
+        "--system-prompt",
+        type=str,
+        default="You are a helpful teaching assistant for a deep learning class.",
+        help="Used when chat template formatting is enabled.",
+    )
     parser.add_argument("--max-new-tokens", type=int, default=128)
+    parser.add_argument("--min-new-tokens", type=int, default=1)
     parser.add_argument("--temperature", type=float, default=0.7)
     parser.add_argument("--top-p", type=float, default=0.9)
     parser.add_argument(
@@ -43,6 +50,11 @@ def parse_args():
         "--greedy",
         action="store_true",
         help="Use greedy decoding (disables temperature/top-p sampling).",
+    )
+    parser.add_argument(
+        "--disable-chat-template",
+        action="store_true",
+        help="Tokenize the raw prompt directly instead of chat-formatting it.",
     )
     return parser.parse_args()
 
@@ -104,6 +116,7 @@ def main():
     device_map, split = build_llama_2gpu_device_map(
         num_hidden_layers, args.gpu0, args.gpu1
     )
+    print("Backend: Hugging Face Transformers (this script does not use vLLM).")
     print(f"Model: {args.model_id}")
     print(f"Visible GPUs: {torch.cuda.device_count()}")
     print(f"Tensor/model parallel GPU ids: {args.gpu0}, {args.gpu1}")
@@ -139,13 +152,33 @@ def main():
             "Model is not sharded across two GPUs. Check model architecture/device map."
         )
 
-    prompt_inputs = tokenizer(args.prompt, return_tensors="pt").to(f"cuda:{args.gpu0}")
+    use_chat_template = (
+        (not args.disable_chat_template)
+        and hasattr(tokenizer, "apply_chat_template")
+        and callable(tokenizer.apply_chat_template)
+        and getattr(tokenizer, "chat_template", None)
+    )
+    if use_chat_template:
+        messages = [
+            {"role": "system", "content": args.system_prompt},
+            {"role": "user", "content": args.prompt},
+        ]
+        rendered_prompt = tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
+        )
+    else:
+        rendered_prompt = args.prompt
+
+    prompt_inputs = tokenizer(rendered_prompt, return_tensors="pt").to(
+        f"cuda:{args.gpu0}"
+    )
 
     for gpu_id in (args.gpu0, args.gpu1):
         torch.cuda.reset_peak_memory_stats(gpu_id)
 
     do_sample = not args.greedy
     generate_kwargs = {
+        "min_new_tokens": args.min_new_tokens,
         "max_new_tokens": args.max_new_tokens,
         "do_sample": do_sample,
         "pad_token_id": tokenizer.pad_token_id,
@@ -163,10 +196,20 @@ def main():
     total_len = output_ids.shape[1]
     new_tokens = total_len - prompt_len
     toks_per_sec = new_tokens / max(elapsed, 1e-6)
-    output_text = tokenizer.decode(output_ids[0], skip_special_tokens=True)
+    full_output_text = tokenizer.decode(output_ids[0], skip_special_tokens=True)
+    generated_ids = output_ids[0, prompt_len:]
+    generated_text = tokenizer.decode(generated_ids, skip_special_tokens=True)
 
-    print("\n=== Inference Result ===")
-    print(output_text)
+    print("\n=== Prompt (Rendered) ===")
+    print(rendered_prompt)
+    print("\n=== Generated Completion Only ===")
+    print(generated_text)
+    if generated_text.strip() == "":
+        raw_generated = tokenizer.decode(generated_ids, skip_special_tokens=False)
+        print("Warning: decoded completion is empty after removing special tokens.")
+        print(f"Raw generated segment: {raw_generated!r}")
+    print("\n=== Full Sequence (Prompt + Completion) ===")
+    print(full_output_text)
     print("\n=== Runtime Stats ===")
     print(f"Prompt tokens: {prompt_len}")
     print(f"New tokens: {new_tokens}")
