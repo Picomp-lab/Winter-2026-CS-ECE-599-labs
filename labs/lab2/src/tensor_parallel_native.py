@@ -99,6 +99,11 @@ def main():
         "fc2": RowwiseParallel(),
     }
     model = parallelize_module(model, mesh, tp_plan)
+    if rank == 0:
+        print(
+            "Tensor parallel is using "
+            f"{world_size} GPU(s) (process-group world size)."
+        )
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
 
     steps_per_epoch = len(train_loader) if rank == 0 else 0
