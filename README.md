@@ -15,6 +15,44 @@ Labs for **CS/ECE 599 (Winter 2026)** — Advanced Topics in Deep Learning & Hig
 3. Run through `labs/lab1/README.md` to validate your environment.
 4. Continue with Lab 2 and Lab 3 from the sections below.
 
+## Lab 0 Setup: HPC + VS Code Remote SSH
+Lab 0 is the cluster onboarding lab. It covers:
+- COE HPC account enablement and SSH login
+- Scratch workspace usage at `/nfs/hpc/share/<ONID>`
+- VS Code Remote-SSH setup
+- Interactive GPU allocation with `srun` and `nvidia-smi` verification
+
+Primary Lab 0 guide:
+- `labs/lab0/README.md`
+- `labs/lab0/doc`
+
+Quick commands:
+```bash
+ln -s /nfs/hpc/share/<ONID> hpc-share
+cd ~/hpc-share
+git clone https://github.com/Picomp-lab/Winter-2026-CS-ECE-599-labs.git
+```
+
+## Lab 1 Update: MNIST + DDP Starter
+Lab 1 validates your PyTorch environment and introduces:
+- Single-GPU MNIST training (`labs/lab1/src/train_mnist.py`)
+- Multi-GPU DDP training (`labs/lab1/src/ddp.py`)
+- Course environment setup from `env/environment.yml` + `env/requirements.txt`
+
+Primary Lab 1 guide:
+- `labs/lab1/README.md`
+
+Quick run examples:
+```bash
+cd labs/lab1
+conda env create -f env/environment.yml
+conda activate csece599
+pip install -r env/requirements.txt
+
+python -m src.train_mnist --epochs 10
+python -m src.ddp --epochs 2 --batch-size 128
+```
+
 ## Lab 2 Update: Tensor and Pipeline Parallelism
 Lab 2 now covers three distributed model-parallel workflows:
 - Tensor parallelism via native PyTorch API: `labs/lab2/src/tensor_parallel_native.py`
