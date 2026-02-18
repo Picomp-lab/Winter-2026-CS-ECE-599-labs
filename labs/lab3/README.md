@@ -12,8 +12,12 @@ From repo root:
 
 ```bash
 cd labs/lab3
+# HF track default environment
 conda activate csece599
 ```
+
+For vLLM, you can optionally use a separate Conda environment so `csece599`
+stays unchanged. See Section 4.1.
 
 Reserve 2 GPUs (interactive).
 
@@ -70,8 +74,21 @@ Notes:
 
 ## 4) Track B — vLLM tutorial
 ### 4.1 Install deps (vLLM track)
+Recommended (optional): use a separate env for vLLM so it is isolated from
+`csece599`.
+
 ```bash
-pip install -U vllm
+conda create -n csece599-vllm python=3.10 -y
+conda activate csece599-vllm
+pip install -U pip
+pip install "vllm==0.11.1"
+```
+
+If you prefer not to create a new env, you can install into `csece599`:
+
+```bash
+conda activate csece599
+pip install "vllm==0.11.1"
 ```
 
 ### 4.2 Run (vLLM track)
