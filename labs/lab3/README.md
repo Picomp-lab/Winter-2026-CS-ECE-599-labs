@@ -10,15 +10,6 @@ Both tracks run on 2 GPUs (V100 or H100) and support changing `--model-id`.
 ## 2) Common cluster setup
 From repo root:
 
-```bash
-cd labs/lab3
-# HF track default environment
-conda activate csece599
-```
-
-For vLLM, you can optionally use a separate Conda environment so `csece599`
-stays unchanged. See Section 4.1.
-
 Reserve 2 GPUs (interactive).
 
 V100 (DGX2):
@@ -26,12 +17,18 @@ V100 (DGX2):
 srun -A eecs --time=0-01:00:00 -p gpu,dgx2 --gres=gpu:2 --mem=64G --pty bash
 ```
 
-H100 (DGXH):
+H100 (DGXH) - Preferred:
 ```bash
 srun -A eecs --time=0-01:00:00 -p gpu,dgxh --gres=gpu:2 --mem=64G --pty bash
 ```
 
-Sanity check:
+```bash
+cd labs/lab3
+# HF track default environment
+conda activate csece599
+```
+
+Sanity check (optional):
 ```bash
 nvidia-smi
 python - <<'PY'
@@ -48,7 +45,7 @@ Optional for gated models:
 export HF_TOKEN=...your_token...
 ```
 
-## 3) Track A — Hugging Face Transformers tutorial
+## 3) Track A — Hugging Face Transformers tutorial  - this is under conda envs csece599 by default
 ### 3.1 Install deps (HF track)
 ```bash
 pip install -U transformers accelerate sentencepiece safetensors
@@ -72,9 +69,9 @@ Notes:
 - This script manually shards Llama-family layers across 2 GPUs.
 - Best fit for Llama-family architecture checkpoints.
 
-## 4) Track B — vLLM tutorial
+## 4) Track B — vLLM tutorial - this is under a new conda envs csece599-vllm
 ### 4.1 Install deps (vLLM track)
-Recommended (optional): use a separate env for vLLM so it is isolated from
+Recommended: use a separate env for vLLM so it is isolated from
 `csece599`.
 
 ```bash
@@ -89,7 +86,6 @@ This script runs a small built-in vLLM example (`facebook/opt-125m`) with
 sample prompts.
 
 ```bash
-conda activate csece599-vllm  # or csece599 if you installed vLLM there
 python src/basic.py
 ```
 
