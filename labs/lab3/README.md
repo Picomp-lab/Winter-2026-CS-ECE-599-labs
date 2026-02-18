@@ -84,14 +84,20 @@ pip install -U pip
 pip install "vllm==0.11.1"
 ```
 
-If you prefer not to create a new env, you can install into `csece599`:
+### 4.2 Run `basic.py` (vLLM quick smoke test)
+This script runs a small built-in vLLM example (`facebook/opt-125m`) with
+sample prompts.
 
 ```bash
-conda activate csece599
-pip install "vllm==0.11.1"
+conda activate csece599-vllm  # or csece599 if you installed vLLM there
+python src/basic.py
 ```
 
-### 4.2 Run (vLLM track)
+Expected output includes:
+- `Generated Outputs:`
+- repeated `Prompt:` / `Output:` lines
+
+### 4.3 Run (vLLM track, 2 GPUs)
 ```bash
 python -m src.vllm_inference_2gpu \
   --model-id TinyLlama/TinyLlama-1.1B-Chat-v1.0 \
@@ -99,7 +105,7 @@ python -m src.vllm_inference_2gpu \
   --prompt "Explain tensor parallelism in 5 bullet points."
 ```
 
-### 4.3 Confirm you are on vLLM backend
+### 4.4 Confirm you are on vLLM backend
 Expected logs include:
 - `Backend: vLLM`
 - `tensor_parallel_size: 2`
