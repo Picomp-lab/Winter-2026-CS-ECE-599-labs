@@ -55,13 +55,14 @@ Visualize TensorBoard outputs:
 tensorboard --logdir ./runs --port 6006
 ```
 
-## 6) Suggested Deliverables
+## 6) Suggested Deliverables and Joining Github Discussions
 - Screenshot of profiler timeline/operator view from `./log/resnet18`.
 - Screenshot(s) from TensorBoard (`Images`, `Graphs`, `Projector`, `Scalars`).
 - Short comparison note for model performance tuning:
   - Increase `batch_size`.
   - Increase `num_workers`.
   - Optionally test another model (for example `vgg16`) and compare with `resnet18`.
+- Post where U are in the discussion: https://github.com/Picomp-lab/Winter-2026-CS-ECE-599-labs/discussions/5 
 
 ## 7) Troubleshooting
 - `ModuleNotFoundError: torch_tb_profiler`:

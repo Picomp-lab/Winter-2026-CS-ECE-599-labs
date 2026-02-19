@@ -7,13 +7,14 @@ Labs for **CS/ECE 599 (Winter 2026)** — Advanced Topics in Deep Learning & Hig
 - `labs/lab1`: MNIST walkthrough and DistributedDataParallel baseline
 - `labs/lab2`: tensor parallelism and pipeline parallelism tutorials
 - `labs/lab3`: 2-GPU LLM inference (Hugging Face + vLLM tracks)
-- `labs/lab4` and `labs/lab5`: later course labs
+- `labs/lab4`: PyTorch Profiler + TensorBoard workflow
+- `labs/lab5`: follow-up TensorBoard lab materials
 
 ## Getting Started
 1. Read setup docs in `labs/lab0/doc`.
 2. Complete `labs/lab0/README.md`.
 3. Run through `labs/lab1/README.md` to validate your environment.
-4. Continue with Lab 2 and Lab 3 from the sections below.
+4. Continue with Lab 2, Lab 3, and Lab 4 from the sections below.
 
 ## Lab 0 Setup: HPC + VS Code Remote SSH
 Lab 0 is the cluster onboarding lab. It covers:
@@ -104,6 +105,34 @@ python -m src.vllm_inference_2gpu \
 Batch launch scripts are available at:
 - `labs/lab3/slurm/infer_llama_v100.slurm`
 - `labs/lab3/slurm/infer_llama_h100.slurm`
+
+## Lab 4 Update: PyTorch Profiler + TensorBoard
+Lab 4 uses two notebooks:
+- `labs/lab4/pytorch_profiler.ipynb`
+- `labs/lab4/tensorboard.ipynb`
+
+Primary Lab 4 guide:
+- `labs/lab4/README.md`
+
+Quick run setup:
+```bash
+cd labs/lab4
+conda activate csece599
+pip install -U "setuptools==80.10.2" jupyter tensorboard torch_tb_profiler matplotlib
+```
+
+Run order:
+1. `pytorch_profiler.ipynb`
+2. `tensorboard.ipynb`
+
+Useful TensorBoard commands:
+```bash
+tensorboard --logdir ./log --port 6006
+tensorboard --logdir ./runs --port 6006
+```
+
+Compatibility note:
+- If TensorBoard fails with `No module named 'pkg_resources'`, pin `setuptools` to `<81`.
 
 ## Discussions
 Course Q&A and updates:
