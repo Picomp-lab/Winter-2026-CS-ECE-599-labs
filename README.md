@@ -3,17 +3,17 @@
 Labs for **CS/ECE 599 (Winter 2026)** — Advanced Topics in Deep Learning & High-performance Computing.
 
 ## Repo Structure
-- `labs/lab0`: HPC + VS Code onboarding and setup docs
-- `labs/lab1`: MNIST walkthrough and DistributedDataParallel baseline
-- `labs/lab2`: tensor parallelism and pipeline parallelism tutorials
-- `labs/lab3`: 2-GPU LLM inference (Hugging Face + vLLM tracks)
-- `labs/lab4`: PyTorch Profiler + TensorBoard workflow
-- `labs/lab5`: follow-up TensorBoard lab materials
+- [`labs/lab0/README.md`](labs/lab0/README.md): HPC + VS Code onboarding and setup docs
+- [`labs/lab1/README.md`](labs/lab1/README.md): MNIST walkthrough and DistributedDataParallel baseline
+- [`labs/lab2/README.md`](labs/lab2/README.md): tensor parallelism and pipeline parallelism tutorials
+- [`labs/lab3/README.md`](labs/lab3/README.md): 2-GPU LLM inference (Hugging Face + vLLM tracks)
+- [`labs/lab4/README.md`](labs/lab4/README.md): PyTorch Profiler + TensorBoard workflow
+- [`labs/lab5/README.md`](labs/lab5/README.md): follow-up TensorBoard lab materials
 
 ## Getting Started
 1. Read setup docs in `labs/lab0/doc`.
-2. Complete `labs/lab0/README.md`.
-3. Run through `labs/lab1/README.md` to validate your environment.
+2. Complete [`labs/lab0/README.md`](labs/lab0/README.md).
+3. Run through [`labs/lab1/README.md`](labs/lab1/README.md) to validate your environment.
 4. Continue with Lab 2, Lab 3, and Lab 4 from the sections below.
 
 ## Lab 0 Setup: HPC + VS Code Remote SSH
@@ -24,7 +24,7 @@ Lab 0 is the cluster onboarding lab. It covers:
 - Interactive GPU allocation with `srun` and `nvidia-smi` verification
 
 Primary Lab 0 guide:
-- `labs/lab0/README.md`
+- [`labs/lab0/README.md`](labs/lab0/README.md)
 - `labs/lab0/doc`
 
 Quick commands:
@@ -41,7 +41,7 @@ Lab 1 validates your PyTorch environment and introduces:
 - Course environment setup from `env/environment.yml` + `env/requirements.txt`
 
 Primary Lab 1 guide:
-- `labs/lab1/README.md`
+- [`labs/lab1/README.md`](labs/lab1/README.md)
 
 Quick run examples:
 ```bash
@@ -61,7 +61,7 @@ Lab 2 now covers three distributed model-parallel workflows:
 - Pipeline parallelism with GPipe: `labs/lab2/src/pipeline.py`
 
 Primary Lab 2 guide:
-- `labs/lab2/README.md`
+- [`labs/lab2/README.md`](labs/lab2/README.md)
 
 Quick run examples:
 ```bash
@@ -83,7 +83,7 @@ Lab 3 is split into two tracks for Llama-family model inference:
 - Track B (vLLM): `labs/lab3/src/vllm_inference_2gpu.py`
 
 Primary Lab 3 guide:
-- `labs/lab3/README.md`
+- [`labs/lab3/README.md`](labs/lab3/README.md)
 
 Quick run examples:
 ```bash
@@ -112,7 +112,7 @@ Lab 4 uses two notebooks:
 - `labs/lab4/tensorboard.ipynb`
 
 Primary Lab 4 guide:
-- `labs/lab4/README.md`
+- [`labs/lab4/README.md`](labs/lab4/README.md)
 
 Quick run setup:
 ```bash
