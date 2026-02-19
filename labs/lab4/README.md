@@ -21,29 +21,13 @@ Then:
 ```bash
 cd labs/lab4
 conda activate csece599
-pip install -U jupyter tensorboard torch_tb_profiler matplotlib
-```
-
-Optional quick check:
-
-```bash
-python - <<'PY'
-import torch
-print("cuda_available:", torch.cuda.is_available())
-print("gpu_count:", torch.cuda.device_count())
-PY
+pip install -U "setuptools==80.10.2" jupyter tensorboard torch_tb_profiler matplotlib
 ```
 
 ## 3) Run the Notebooks
 Open in VS Code/Jupyter and run cells in order:
 - `pytorch_profiler.ipynb`
 - `tensorboard.ipynb`
-
-If you prefer launching Jupyter manually:
-
-```bash
-jupyter lab --no-browser --port 8888
-```
 
 ## 4) Notebook A - PyTorch Profiler
 In `pytorch_profiler.ipynb`:
@@ -82,6 +66,9 @@ tensorboard --logdir ./runs --port 6006
 ## 7) Troubleshooting
 - `ModuleNotFoundError: torch_tb_profiler`:
   - Install with `pip install torch_tb_profiler`.
+- `ModuleNotFoundError: No module named 'pkg_resources'` when running `tensorboard`:
+  - Pin setuptools to a compatible version:
+  - `pip install "setuptools==80.10.2"` (or `pip install "setuptools<81"`).
 - TensorBoard shows no data:
   - Confirm `--logdir` matches `./log` or `./runs`.
   - Re-run notebook cells that write logs.
